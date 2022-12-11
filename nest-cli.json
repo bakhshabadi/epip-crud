@@ -1,0 +1,18 @@
+{
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "projects": {
+    "epip-logger": {
+      "type": "library",
+      "root": "libs/epip-logger",
+      "entryFile": "index",
+      "sourceRoot": "libs/epip-logger/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/epip-logger/tsconfig.lib.json"
+      }
+    }
+  },
+  "compilerOptions": {
+    "webpack": true
+  }
+}
