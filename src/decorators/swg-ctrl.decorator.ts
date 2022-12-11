@@ -9,7 +9,7 @@ export const ApiController = <TModel extends Type<any>>(
       ApiTags(options?.tagName || model.name),
       Controller({
         version: options.version || '1',
-        path:options?.url || model.name,                
+        path:options?.url || model.name,  
       }),
       ApiExtraModels(model),
       ApiExtraModels(IResponseAll)

@@ -69,46 +69,70 @@ export abstract class BaseService<T, IN, OUT> {
         //   throw new BadGatewayException(`[${commands[0]}] is not a valid field`);
         // }
 
-        if(!filter.relations) {
-          filter.relations=[];
+        if (!filter.relations) {
+          filter.relations = [];
         }
-        for(let i=0;i< commands.length-1;i++){
-          let rel=commands[i];
+        for (let i = 0; i < commands.length - 1; i++) {
+          let rel = commands[i];
           (filter as any).relations.push(rel);
         }
-        switch (commands[commands.length-1]) {
+        var str_splitter = "user__data__item__like"
+
+
+        function simpleJsonToNestedProps(str_splitter, arr, value) {
+          var obj = null;
+          let split_str = str_splitter.split("__");
+          let lenghtOfString = split_str.length;
+
+          if (lenghtOfString > 2) {
+
+            let key = split_str.splice(0, 1);
+            if (!arr[key]) {
+              arr[key] = {}
+            }
+            return simpleJsonToNestedProps(split_str.join("__"), arr[key], value);
+          } else if (lenghtOfString == 2) {
+            let key = split_str.splice(0, 1);
+            arr[key] = value;
+            return key;
+          }
+        }
+
+        let key="";
+        switch (commands[commands.length - 1]) {
           case 'isnull':
             if (f.toLowerCase() == 'true') {
-              filter.where[commands[0]] = IsNull();
+              simpleJsonToNestedProps(commands.join('__'), filter.where, IsNull());
             }
             break;
           case 'like':
-            filter.where[commands[0]] = Like(`%${f}%`);
-            sqlValues[commands[0]] = f;
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, Like(`%${f}%`));
+
+            sqlValues[key] = f;
             break;
           case 'gte':
-            filter.where[commands[0]] = MoreThanOrEqual(f);
-            sqlValues[commands[0]] = f;
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, MoreThanOrEqual(f));
+            sqlValues[key] = f;
             break;
           case 'lte':
-            filter.where[commands[0]] = LessThanOrEqual(f);
-            sqlValues[commands[0]] = f;
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, LessThanOrEqual(f));  
+            sqlValues[key] = f;
             break;
           case 'gt':
-            filter.where[commands[0]] = MoreThan(f);
-            sqlValues[commands[0]] = f;
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, MoreThan(f));  
+            sqlValues[key] = f;
             break;
           case 'lt':
-            filter.where[commands[0]] = LessThan(f);
-            sqlValues[commands[0]] = f;
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, LessThan(f));  
+            sqlValues[key] = f;
             break;
           case 'between':
-            filter.where[commands[0]] = Between(f.split(',')[0],f.split(',')[1]);
-            sqlValues[commands[0]] = f;
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, Between(f.split(',')[0], f.split(',')[1]));  
+            sqlValues[key] = f;
             break;
           case 'in':
-            filter.where[commands[0]] = In(f.split(','));
-            sqlValues[commands[0]] = f;
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, In(f.split(',')));  
+            sqlValues[key] = f;
             break;
         }
       }
@@ -117,7 +141,7 @@ export abstract class BaseService<T, IN, OUT> {
     const [err, [results, count]] = await to(this.repo.findAndCount(filter as FindManyOptions));
     if (err) {
       return {
-        count:0,
+        count: 0,
         status: 500,
         message: err.message,
         results: []
@@ -202,7 +226,7 @@ export abstract class BaseService<T, IN, OUT> {
     }
 
 
-    [err, res] = await to(this.repo.update(id, data));
+    [err, res] = await to(this.repo.update(id, data as QueryDeepPartialEntity<T>));
     if (err) {
       return {
         status: 500,
@@ -269,7 +293,7 @@ export abstract class BaseService<T, IN, OUT> {
     if (results?.result) {
       data = results?.result;
       if (this.relations) {
-        for (const key in data) {
+        for (const key in data as T[]) {
           if (Object.prototype.hasOwnProperty.call(data, key)) {
             if (this.relations.includes(key)) {
               delete data[key];
@@ -300,8 +324,8 @@ export abstract class BaseService<T, IN, OUT> {
   }
 
 
-  public getJwtClaim(claim:string,error?:string){
-    let meId = contextService.get('request:user.'+claim);
+  public getJwtClaim(claim: string, error?: string) {
+    let meId = contextService.get('request:user.' + claim);
     if (!meId) {
       throw new HttpException(error || 'UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
     }
