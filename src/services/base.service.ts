@@ -43,7 +43,7 @@ export abstract class BaseService<T, IN, OUT> {
       order: {
         id: "ASC"
       },
-      where: {}
+      where: {},
     }
 
     let sqlWhere = [];
@@ -69,8 +69,14 @@ export abstract class BaseService<T, IN, OUT> {
         //   throw new BadGatewayException(`[${commands[0]}] is not a valid field`);
         // }
 
-
-        switch (commands[1]) {
+        if(!filter.relations) {
+          filter.relations=[];
+        }
+        for(let i=0;i< commands.length-1;i++){
+          let rel=commands[i];
+          (filter as any).relations.push(rel);
+        }
+        switch (commands[commands.length-1]) {
           case 'isnull':
             if (f.toLowerCase() == 'true') {
               filter.where[commands[0]] = IsNull();
