@@ -163,7 +163,8 @@ export abstract class BaseService<T, IN, OUT> {
   }
 
   public async post(req: Request, entity: DeepPartial<T>): Promise<IResponse<T | OUT>> {
-
+    delete (entity as any).jwt;
+    
     const [err, result] = await to(this.repo.save(entity));
     if (err) {
       return {
@@ -215,6 +216,7 @@ export abstract class BaseService<T, IN, OUT> {
       }
     }
 
+    delete (data as any).jwt;
 
     [err, res] = await to(this.repo.update(id, data as QueryDeepPartialEntity<T>));
     if (err) {
@@ -246,6 +248,8 @@ export abstract class BaseService<T, IN, OUT> {
         message: err.message,
       } as IResponse<T>;
     }
+
+    delete (entity as any).jwt;
 
     const [err1, resUpdate] = await to(this.repo.update(id, entity));
     console.log(err1)
