@@ -1,6 +1,6 @@
 {
   "name": "epip-crud",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -8,8 +8,8 @@
     "clean": "rmdir /q /s dist",
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "build-app": "npm run up-version && rmdir /q /s dist && tsc -p ./tsconfig.json && copy package.json dist\\package.json",
-    "publish-app": "npm publish --registry https://npm.tesseract.team/",
-    "pub": "npm run build && npm run up-version && npm publish --registry https://npm.tesseract.team/"
+    "publish-app": "npm publish",
+    "pub": "npm run build && npm run up-version && npm publish"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
