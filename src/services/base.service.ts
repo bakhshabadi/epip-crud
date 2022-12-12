@@ -69,16 +69,6 @@ export abstract class BaseService<T, IN, OUT> {
         //   throw new BadGatewayException(`[${commands[0]}] is not a valid field`);
         // }
 
-        if (!filter.relations) {
-          filter.relations = [];
-        }
-        for (let i = 0; i < commands.length - 1; i++) {
-          let rel = commands[i];
-          (filter as any).relations.push(rel);
-        }
-        var str_splitter = "user__data__item__like"
-
-
         function simpleJsonToNestedProps(str_splitter, arr, value) {
           var obj = null;
           let split_str = str_splitter.split("__");
