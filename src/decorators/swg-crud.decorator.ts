@@ -1,18 +1,18 @@
 import { applyDecorators, Delete, Get, Inject, Patch, Post, Put, Type, UseFilters } from "@nestjs/common";
 import { ApiOkResponse, ApiParam, getSchemaPath } from "@nestjs/swagger";
-import { IResponseAll } from "../types/res.interface";
+import { IResponse, IResponseAll } from "../types/res.interface";
 
 export const ApiGetAll = <TModel extends Type<any>>(
   model: TModel,
   path?: string
 ) => {
-  let s=getSchemaPath(IResponseAll);
+  let s = getSchemaPath(IResponseAll);
   return applyDecorators(
     Get(path || "/"),
     ApiOkResponse({
       schema: {
         allOf: [
-          {$ref: getSchemaPath(IResponseAll)},
+          { $ref: getSchemaPath(IResponseAll) },
           {
             properties: {
               results: {
@@ -38,7 +38,18 @@ export const ApiGet = <TModel extends Type<any>>(
       type: 'string'
     }),
     ApiOkResponse({
-      type: model,
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(IResponse) },
+          {
+            properties: {
+              result: {
+                items: { $ref: getSchemaPath(model.name) },
+              },
+            },
+          },
+        ],
+      },
     })
   );
 };
@@ -50,7 +61,18 @@ export const ApiPost = <TModel extends Type<any>>(
   return applyDecorators(
     Post(path || "/"),
     ApiOkResponse({
-      type: model,
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(IResponse) },
+          {
+            properties: {
+              result: {
+                items: { $ref: getSchemaPath(model.name) },
+              },
+            },
+          },
+        ],
+      },
     })
   );
 };
@@ -63,10 +85,21 @@ export const ApiPut = <TModel extends Type<any>>(
     Put(path || "/:id"),
     ApiParam({
       name: 'id',
-      type: 'string',      
+      type: 'string',
     }),
     ApiOkResponse({
-      type: model,
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(IResponse) },
+          {
+            properties: {
+              result: {
+                items: { $ref: getSchemaPath(model.name) },
+              },
+            },
+          },
+        ],
+      },
     })
   );
 };
@@ -82,7 +115,18 @@ export const ApiPatch = <TModel extends Type<any>>(
       type: 'string'
     }),
     ApiOkResponse({
-      type: model,
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(IResponse) },
+          {
+            properties: {
+              result: {
+                items: { $ref: getSchemaPath(model.name) },
+              },
+            },
+          },
+        ],
+      },
     })
   );
 };
@@ -98,7 +142,18 @@ export const ApiDelete = <TModel extends Type<any>>(
       type: 'string'
     }),
     ApiOkResponse({
-      type: model,
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(IResponse) },
+          {
+            properties: {
+              result: {
+                items: { $ref: getSchemaPath(model.name) },
+              },
+            },
+          },
+        ],
+      },
     })
   );
 };

@@ -1,6 +1,6 @@
 import { applyDecorators, Controller, Type } from "@nestjs/common";
 import { ApiExtraModels, ApiHeader, ApiTags } from "@nestjs/swagger";
-import { IResponseAll } from "../types";
+import { IResponse, IResponseAll } from "../types";
 
 export const ApiController = <TModel extends Type<any>>(
     model: TModel,options:any
@@ -12,6 +12,7 @@ export const ApiController = <TModel extends Type<any>>(
         path:options?.url || model.name,  
       }),
       ApiExtraModels(model),
-      ApiExtraModels(IResponseAll)
+      ApiExtraModels(IResponseAll),
+      ApiExtraModels(IResponse)
     );
   };
