@@ -25,7 +25,11 @@ export abstract class BaseService<T, IN, OUT> {
       } as FindOneOptions)
     );
     if (err) {
-      throw err
+      throw new HttpException("fetch in db", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    if (!result) {
+      throw new HttpException("not found recorc", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     return {
@@ -88,7 +92,7 @@ export abstract class BaseService<T, IN, OUT> {
           }
         }
 
-        let key="";
+        let key = "";
         switch (commands[commands.length - 1]) {
           case 'isnull':
             if (f.toLowerCase() == 'true') {
@@ -105,23 +109,23 @@ export abstract class BaseService<T, IN, OUT> {
             sqlValues[key] = f;
             break;
           case 'lte':
-            key = simpleJsonToNestedProps(commands.join('__'), filter.where, LessThanOrEqual(f));  
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, LessThanOrEqual(f));
             sqlValues[key] = f;
             break;
           case 'gt':
-            key = simpleJsonToNestedProps(commands.join('__'), filter.where, MoreThan(f));  
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, MoreThan(f));
             sqlValues[key] = f;
             break;
           case 'lt':
-            key = simpleJsonToNestedProps(commands.join('__'), filter.where, LessThan(f));  
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, LessThan(f));
             sqlValues[key] = f;
             break;
           case 'between':
-            key = simpleJsonToNestedProps(commands.join('__'), filter.where, Between(f.split(',')[0], f.split(',')[1]));  
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, Between(f.split(',')[0], f.split(',')[1]));
             sqlValues[key] = f;
             break;
           case 'in':
-            key = simpleJsonToNestedProps(commands.join('__'), filter.where, In(f.split(',')));  
+            key = simpleJsonToNestedProps(commands.join('__'), filter.where, In(f.split(',')));
             sqlValues[key] = f;
             break;
         }
@@ -130,12 +134,7 @@ export abstract class BaseService<T, IN, OUT> {
 
     const [err, [results, count]] = await to(this.repo.findAndCount(filter as FindManyOptions));
     if (err) {
-      return {
-        count: 0,
-        status: 500,
-        message: err.message,
-        results: []
-      };
+      throw new HttpException("fetch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     return {
@@ -149,10 +148,11 @@ export abstract class BaseService<T, IN, OUT> {
   public async get(req: Request, id: number): Promise<IResponse<OUT | T>> {
     const [err, res] = await to(this.getById(id));
     if (err) {
-      return {
-        status: 500,
-        message: err.message,
-      }
+      throw new HttpException("fetch in db", HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    if (!res) {
+      throw new HttpException("not found record", HttpStatus.NOT_FOUND)
     }
 
     return {
@@ -164,13 +164,10 @@ export abstract class BaseService<T, IN, OUT> {
 
   public async post(req: Request, entity: DeepPartial<T>): Promise<IResponse<T | OUT>> {
     delete (entity as any).jwt;
-    
+
     const [err, result] = await to(this.repo.save(entity));
     if (err) {
-      return {
-        status: 500,
-        message: err.message,
-      } as IResponse<T>;
+      throw new HttpException("post in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     return {
@@ -183,10 +180,7 @@ export abstract class BaseService<T, IN, OUT> {
   public async put(req: Request, id: number, entity: DeepPartial<T>): Promise<IResponse<T | OUT>> {
     let [err, results] = await to(this.getById(id));
     if (err) {
-      return {
-        status: 500,
-        message: err.message,
-      } as IResponse<T>;
+      throw new HttpException("fetch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     let data: T;
@@ -199,10 +193,7 @@ export abstract class BaseService<T, IN, OUT> {
         }
       }
     } else {
-      return {
-        status: 404,
-        message: "not found record",
-      } as IResponse<T>;
+      throw new HttpException("not found record", HttpStatus.NOT_FOUND)
     }
 
     let res;
@@ -220,10 +211,7 @@ export abstract class BaseService<T, IN, OUT> {
 
     [err, res] = await to(this.repo.update(id, data as QueryDeepPartialEntity<T>));
     if (err) {
-      return {
-        status: 500,
-        message: err.message,
-      } as IResponse<T>;
+      throw new HttpException("put in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     if (res?.affected) {
@@ -233,31 +221,22 @@ export abstract class BaseService<T, IN, OUT> {
         result: this.mapper ? this.mapper(data) : data,
       };
     } else {
-      return {
-        status: 500,
-        message: 'error !.',
-      } as IResponse<T>;
+      throw new HttpException("put in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
 
   public async patch(req: Request, id: number, entity: QueryDeepPartialEntity<T>): Promise<IResponse<T | OUT>> {
     let [err, results] = await to(this.get(req, id));
     if (err) {
-      return {
-        status: 501,
-        message: err.message,
-      } as IResponse<T>;
+      throw new HttpException("patch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     delete (entity as any).jwt;
 
     const [err1, resUpdate] = await to(this.repo.update(id, entity));
-    console.log(err1)
+
     if (err1) {
-      return {
-        status: 502,
-        message: err1.message,
-      } as IResponse<T>;
+      throw new HttpException("patch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     if (resUpdate?.affected) {
@@ -267,20 +246,14 @@ export abstract class BaseService<T, IN, OUT> {
         result: this.mapper ? this.mapper(entity as T) : entity as T,
       };
     } else {
-      return {
-        status: 503,
-        message: 'error !.',
-      } as IResponse<T>;
+      throw new HttpException("patch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
 
   public async delete(req: Request, id: number): Promise<IResponse<T>> {
     let [err, results] = await to(this.getById(id));
     if (err) {
-      return {
-        status: 500,
-        message: err.message,
-      } as IResponse<T>;
+      throw new HttpException("delete in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     let data: T | OUT;
@@ -298,10 +271,7 @@ export abstract class BaseService<T, IN, OUT> {
 
       let [errDelete, resultsDelete] = await to(this.repo.softDelete(id));
       if (errDelete) {
-        return {
-          status: 500,
-          message: "not found record",
-        } as IResponse<T>;
+        throw new HttpException("delete in db", HttpStatus.INTERNAL_SERVER_ERROR)
       } else {
         return {
           status: 200,
@@ -310,10 +280,7 @@ export abstract class BaseService<T, IN, OUT> {
       }
 
     } else {
-      return {
-        status: 404,
-        message: "not found record",
-      } as IResponse<T>;
+      throw new HttpException("not found in db", HttpStatus.NOT_FOUND)
     }
   }
 
