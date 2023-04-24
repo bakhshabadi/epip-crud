@@ -2,13 +2,25 @@ import { applyDecorators, Delete, Get, Inject, Patch, Post, Put, Type, UseFilter
 import { ApiOkResponse, ApiParam, getSchemaPath } from "@nestjs/swagger";
 import { IResponse, IResponseAll } from "../types/res.interface";
 
+const getParams = url => {
+  let arr = url.split('/').filter(f => f.substring(0, 1) == ":").map(f => f.substring(1));
+  return arr.map(f => ApiParam({
+    name: f,
+    type: 'string'
+  }))
+}
+
 export const ApiGetAll = <TModel extends Type<any>>(
   model: TModel,
   path?: string
 ) => {
+  if (!path) {
+    path = "/";
+  }
   let s = getSchemaPath(IResponseAll);
   return applyDecorators(
     Get(path || "/"),
+    ...getParams(path),
     ApiOkResponse({
       schema: {
         allOf: [
@@ -31,12 +43,12 @@ export const ApiGet = <TModel extends Type<any>>(
   model: TModel,
   path?: string
 ) => {
+  if (!path) {
+    path = "/:id";
+  }
   return applyDecorators(
-    Get(path || "/:id"),
-    ApiParam({
-      name: 'id',
-      type: 'string'
-    }),
+    Get(path),
+    ...getParams(path),
     ApiOkResponse({
       schema: {
         allOf: [
@@ -58,8 +70,13 @@ export const ApiPost = <TModel extends Type<any>>(
   model: TModel,
   path?: string
 ) => {
+  if (!path) {
+    path = "/";
+  }
+
   return applyDecorators(
-    Post(path || "/"),
+    Post(path),
+    ...getParams(path),
     ApiOkResponse({
       schema: {
         allOf: [
@@ -81,12 +98,13 @@ export const ApiPut = <TModel extends Type<any>>(
   model: TModel,
   path?: string
 ) => {
+  if (!path) {
+    path = "/:id";
+  }
+
   return applyDecorators(
     Put(path || "/:id"),
-    ApiParam({
-      name: 'id',
-      type: 'string',
-    }),
+    ...getParams(path),
     ApiOkResponse({
       schema: {
         allOf: [
@@ -108,12 +126,12 @@ export const ApiPatch = <TModel extends Type<any>>(
   model: TModel,
   path?: string
 ) => {
+  if (!path) {
+    path = "/:id";
+  }
   return applyDecorators(
     Patch(path || "/:id"),
-    ApiParam({
-      name: 'id',
-      type: 'string'
-    }),
+    ...getParams(path),
     ApiOkResponse({
       schema: {
         allOf: [
@@ -135,12 +153,12 @@ export const ApiDelete = <TModel extends Type<any>>(
   model: TModel,
   path?: string
 ) => {
+  if (!path) {
+    path = "/:id";
+  }
   return applyDecorators(
     Delete(path || "/:id"),
-    ApiParam({
-      name: 'id',
-      type: 'string'
-    }),
+    ...getParams(path),
     ApiOkResponse({
       schema: {
         allOf: [
