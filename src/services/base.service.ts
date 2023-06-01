@@ -25,6 +25,7 @@ export abstract class BaseService<T, IN, OUT> {
       } as FindOneOptions)
     );
     if (err) {
+      console.log(err)
       throw new HttpException("fetch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -148,6 +149,7 @@ export abstract class BaseService<T, IN, OUT> {
   public async get(req: Request, id: number): Promise<IResponse<OUT | T>> {
     const [err, res] = await to(this.getById(id));
     if (err) {
+      console.log(err)
       throw new HttpException("fetch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -167,6 +169,7 @@ export abstract class BaseService<T, IN, OUT> {
 
     const [err, result] = await to(this.repo.save(entity));
     if (err) {
+      console.log(err)
       throw new HttpException("post in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -180,6 +183,7 @@ export abstract class BaseService<T, IN, OUT> {
   public async put(req: Request, id: number, entity: DeepPartial<T>): Promise<IResponse<T | OUT>> {
     let [err, results] = await to(this.getById(id));
     if (err) {
+      console.log(err)
       throw new HttpException("fetch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -193,6 +197,7 @@ export abstract class BaseService<T, IN, OUT> {
         }
       }
     } else {
+      console.log("not found record")
       throw new HttpException("not found record", HttpStatus.NOT_FOUND)
     }
 
@@ -211,6 +216,7 @@ export abstract class BaseService<T, IN, OUT> {
 
     [err, res] = await to(this.repo.update(id, data as QueryDeepPartialEntity<T>));
     if (err) {
+      console.log(err)
       throw new HttpException("put in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -228,6 +234,7 @@ export abstract class BaseService<T, IN, OUT> {
   public async patch(req: Request, id: number, entity: QueryDeepPartialEntity<T>): Promise<IResponse<T | OUT>> {
     let [err, results] = await to(this.get(req, id));
     if (err) {
+      console.log(err)
       throw new HttpException("patch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -236,6 +243,7 @@ export abstract class BaseService<T, IN, OUT> {
     const [err1, resUpdate] = await to(this.repo.update(id, entity));
 
     if (err1) {
+      console.log(err1)
       throw new HttpException("patch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -253,6 +261,7 @@ export abstract class BaseService<T, IN, OUT> {
   public async delete(req: Request, id: number): Promise<IResponse<T>> {
     let [err, results] = await to(this.getById(id));
     if (err) {
+      console.log(err)
       throw new HttpException("delete in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -271,6 +280,7 @@ export abstract class BaseService<T, IN, OUT> {
 
       let [errDelete, resultsDelete] = await to(this.repo.softDelete(id));
       if (errDelete) {
+        console.log(errDelete)
         throw new HttpException("delete in db", HttpStatus.INTERNAL_SERVER_ERROR)
       } else {
         return {
@@ -280,6 +290,7 @@ export abstract class BaseService<T, IN, OUT> {
       }
 
     } else {
+      console.log("not found in db")
       throw new HttpException("not found in db", HttpStatus.NOT_FOUND)
     }
   }
