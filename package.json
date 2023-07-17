@@ -1,8 +1,8 @@
 {
   "name": "epip-crud",
-  "version": "1.1.46",
+  "version": "1.1.47",
   "description": "",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "up-version": "npm version patch --force",
     "clean": "rmdir /q /s dist",
