@@ -1,15 +1,15 @@
 import * as contextService from 'request-context';
 import { to } from "await-to-js";
 import { Between, DeepPartial, FindManyOptions, FindOneOptions, In, IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Repository } from "typeorm";
-import { IResponse, IResponseAll, QUERY } from "../types";
-import { query, Request } from "express";
-import { BadGatewayException, HttpException, HttpStatus, Query, Req } from "@nestjs/common";
+import { IResponse, IResponseAll } from "../types";
+import { Request } from "express";
+import { HttpException, HttpStatus, Query, Req } from "@nestjs/common";
 import _ = require("lodash");
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 
 export abstract class BaseService<T, IN, OUT> {
 
-  abstract mapper(entity: T): OUT;
+  public abstract mapper(entity: T): Promise<OUT>;
   constructor(
     public repo: Repository<T>,
     private relations?: Array<string>,
@@ -138,11 +138,19 @@ export abstract class BaseService<T, IN, OUT> {
       throw new HttpException("fetch in db", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
+    let arr = [];
+    if (this.mapper) {
+      for (let i = 0; i < results.length; i++) {
+        const f = results[i];
+        arr.push(await this.mapper(f))
+      }
+    }
+
     return {
       count,
       status: 200,
       message: "ok",
-      results: this.mapper ? results.map(f => this.mapper(f)) : results,
+      results: this.mapper ? arr : results,
     };
   }
 
@@ -156,11 +164,12 @@ export abstract class BaseService<T, IN, OUT> {
     if (!res) {
       throw new HttpException("not found record", HttpStatus.NOT_FOUND)
     }
+    
 
     return {
       status: 200,
       message: "ok",
-      result: this.mapper ? this.mapper(res.result) : res.result,
+      result: this.mapper ? await this.mapper(res.result) : res.result,
     };
   }
 
@@ -176,7 +185,7 @@ export abstract class BaseService<T, IN, OUT> {
     return {
       status: 201,
       message: "ok",
-      result: this.mapper ? this.mapper(result) : result,
+      result: this.mapper ? await this.mapper(result) : result,
     };
   }
 
@@ -224,7 +233,7 @@ export abstract class BaseService<T, IN, OUT> {
       return {
         status: 200,
         message: "ok",
-        result: this.mapper ? this.mapper(data) : data,
+        result: this.mapper ? await this.mapper(data) : data,
       };
     } else {
       throw new HttpException("put in db", HttpStatus.INTERNAL_SERVER_ERROR)
@@ -251,7 +260,7 @@ export abstract class BaseService<T, IN, OUT> {
       return {
         status: 200,
         message: "ok",
-        result: this.mapper ? this.mapper(entity as T) : entity as T,
+        result: this.mapper ? await this.mapper(entity as T) : entity as T,
       };
     } else {
       throw new HttpException("patch in db", HttpStatus.INTERNAL_SERVER_ERROR)

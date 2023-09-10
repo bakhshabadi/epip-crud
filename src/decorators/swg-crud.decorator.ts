@@ -56,7 +56,7 @@ export const ApiGet = <TModel extends Type<any>>(
           {
             properties: {
               result: {
-                items: { $ref: getSchemaPath(model.name) },
+                $ref: getSchemaPath(model.name) ,
               },
             },
           },
@@ -84,7 +84,7 @@ export const ApiPost = <TModel extends Type<any>>(
           {
             properties: {
               result: {
-                items: { $ref: getSchemaPath(model.name) },
+                $ref: getSchemaPath(model.name) 
               },
             },
           },
@@ -112,7 +112,7 @@ export const ApiPut = <TModel extends Type<any>>(
           {
             properties: {
               result: {
-                items: { $ref: getSchemaPath(model.name) },
+                $ref: getSchemaPath(model.name) 
               },
             },
           },
@@ -139,7 +139,7 @@ export const ApiPatch = <TModel extends Type<any>>(
           {
             properties: {
               result: {
-                items: { $ref: getSchemaPath(model.name) },
+                $ref: getSchemaPath(model.name) ,
               },
             },
           },
@@ -166,7 +166,7 @@ export const ApiDelete = <TModel extends Type<any>>(
           {
             properties: {
               result: {
-                items: { $ref: getSchemaPath(model.name) },
+                $ref: getSchemaPath(model.name) 
               },
             },
           },

@@ -1,8 +1,4 @@
 import { Module, DynamicModule, HttpException, HttpStatus } from '@nestjs/common';
-import * as decorators from './decorators';
-import * as services from './services';
-import * as controllers from './controllers';
-import * as types from './types';
 import { SelectQueryBuilder } from 'typeorm';
 import to from 'await-to-js';
 
