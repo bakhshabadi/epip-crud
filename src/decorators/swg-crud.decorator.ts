@@ -10,6 +10,25 @@ const getParams = url => {
   }))
 }
 
+export class AnyResponse { }
+
+const getResponse = (model: any) => {
+  if (model) {
+    return [
+      { $ref: getSchemaPath(IResponse) },
+      {
+        properties: {
+          result: {
+            $ref: getSchemaPath(model.name !== 'Object' ? model.name : AnyResponse.name),
+          },
+        },
+      }
+    ]
+  } else {
+    return [{ $ref: getSchemaPath(IResponse) }]
+  }
+}
+
 export const ApiGetAll = <TModel extends Type<any>>(
   model: TModel,
   path?: string
@@ -52,14 +71,7 @@ export const ApiGet = <TModel extends Type<any>>(
     ApiOkResponse({
       schema: {
         allOf: [
-          { $ref: getSchemaPath(IResponse) },
-          {
-            properties: {
-              result: {
-                $ref: getSchemaPath(model.name) ,
-              },
-            },
-          },
+          ...getResponse(model),
         ],
       },
     })
@@ -80,14 +92,7 @@ export const ApiPost = <TModel extends Type<any>>(
     ApiOkResponse({
       schema: {
         allOf: [
-          { $ref: getSchemaPath(IResponse) },
-          {
-            properties: {
-              result: {
-                $ref: getSchemaPath(model.name) 
-              },
-            },
-          },
+          ...getResponse(model),
         ],
       },
     })
@@ -108,14 +113,7 @@ export const ApiPut = <TModel extends Type<any>>(
     ApiOkResponse({
       schema: {
         allOf: [
-          { $ref: getSchemaPath(IResponse) },
-          {
-            properties: {
-              result: {
-                $ref: getSchemaPath(model.name) 
-              },
-            },
-          },
+          ...getResponse(model), ,
         ],
       },
     })
@@ -135,14 +133,7 @@ export const ApiPatch = <TModel extends Type<any>>(
     ApiOkResponse({
       schema: {
         allOf: [
-          { $ref: getSchemaPath(IResponse) },
-          {
-            properties: {
-              result: {
-                $ref: getSchemaPath(model.name) ,
-              },
-            },
-          },
+          ...getResponse(model),
         ],
       },
     })
@@ -162,14 +153,7 @@ export const ApiDelete = <TModel extends Type<any>>(
     ApiOkResponse({
       schema: {
         allOf: [
-          { $ref: getSchemaPath(IResponse) },
-          {
-            properties: {
-              result: {
-                $ref: getSchemaPath(model.name) 
-              },
-            },
-          },
+          ...getResponse(model),
         ],
       },
     })
