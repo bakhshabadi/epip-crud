@@ -252,3 +252,31 @@ export const ApiDelete = <TModel extends Type<any>>(
     }),
   );
 };
+
+export const ApiDeleteAll = <TModel extends Type<any>>(
+  model: TModel,
+  path?: string,
+) => {
+  if (!path) {
+    path = '/:id';
+  }
+  return applyDecorators(
+    Delete(path || '/:id'),
+    ...getParams(path),
+    ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(IResponseAll) },
+          {
+            properties: {
+              results: {
+                type: 'array',
+                items: { $ref: getSchemaPath(model.name) },
+              },
+            },
+          },
+        ],
+      },
+    }),
+  );
+};
