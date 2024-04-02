@@ -1,6 +1,6 @@
 {
   "name": "epip-crud",
-  "version": "1.1.73",
+  "version": "1.1.74",
   "description": "",
   "main": "index.js",
   "files": [
@@ -10,7 +10,7 @@
     "up-version": "npm version patch --force",
     "clean": "rmdir /q /s dist",
     "build": "rimraf dist && tsc -p tsconfig.build.json",
-    "build:app": "npm run up-version && rimraf ./dist && tsc -p ./tsconfig.json && npm run up-version && npm publish",
+    "build:app": "npm run up-version && rimraf ./dist && tsc -p ./tsconfig.json && npm publish",
     "pub": "npm run build && npm run up-version && npm publish"
   },
   "dependencies": {
